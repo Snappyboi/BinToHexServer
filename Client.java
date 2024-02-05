@@ -1,12 +1,14 @@
+//Chad Tiffner
+//02-05-2024
 import java.net.*;
 import java.util.*;
 import java.io.*;
 
 public class Client {
     private static InetAddress host;
-    private static final int PORT = 8080; //this random port works at the moment
+    private static final int PORT = 8080; //can be any unused port as long as this and server port are the same
 
-    public static void main(String[] args){
+    public static void main(String[] args){ //really just makes the connection, most of the program is handled in accessServer()
         try{
             host = InetAddress.getLocalHost();
         }
@@ -22,15 +24,15 @@ public class Client {
         try{
             link = new Socket(host, PORT);
 
-            Scanner in = new Scanner(link.getInputStream());
-            PrintWriter output = new PrintWriter(link.getOutputStream(),true);
+            Scanner in = new Scanner(link.getInputStream());//creates inputStream from server
+            PrintWriter output = new PrintWriter(link.getOutputStream(),true); //creates output stream to send String to server
             Scanner userInput = new Scanner(System.in);
             String message;
             String response;
             do{
                 System.out.print("Enter a binary Number: ");
                 message = userInput.nextLine();
-                output.println(message);
+                output.println(message); //sends user input to server
                 if(in.hasNextLine()){
                     response = in.nextLine();
                 System.out.println("\nSERVER> " + response);
@@ -47,7 +49,7 @@ public class Client {
         catch(IOException ioEx){
             ioEx.printStackTrace();
         }
-        finally{
+        finally{ //closes connection
             try{
                 System.out.println("Closing connection...");
                 link.close();
