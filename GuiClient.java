@@ -15,23 +15,16 @@ public class GuiClient extends JFrame implements ActionListener{
 
     private static Socket socket = null;
     private final int PORT = 8080;
+    private static PrintWriter out = null;
+    private static Scanner in = null;
 
     public static void main(String[] args){
         GuiClient frame = new GuiClient();
         frame.setSize(400,300);
         frame.setVisible(true);
-
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event){
-                if(socket != null){
-                    try{
-                        socket.close();
-                    }
-                    catch(IOException ioEx){
-                        System.out.println("Unable to close link!");
-                        System.exit(1);
-                    }
-                }
+                disconnect();
                 System.exit(0);
             }
         });
@@ -63,33 +56,41 @@ public class GuiClient extends JFrame implements ActionListener{
 
     public void actionPerformed(ActionEvent event){
         if(event.getSource() == exitButton){
+            disconnect();
             System.exit(0);
         }
-        String hexString;
+        String response;
         String binString = hostInput.getText();
 
         try{
-            socket = new Socket(InetAddress.getLocalHost(), PORT);
-            Scanner in = new Scanner(socket.getInputStream());
-            hexString = in.nextLine();
-
-            display.append(binString + " in hexadecimal is: " + hexString);
+            if(socket == null || socket.isClosed()){
+                socket = new Socket(InetAddress.getLocalHost(), PORT);
+                in = new Scanner(socket.getInputStream());
+                out = new PrintWriter(socket.getOutputStream(), true);
+            }
+            out.println(binString);
+            if(in.hasNextLine()){
+                response = in.nextLine();
+                display.append(response + "\n");
+            }
+            else{
+                display.append("No response from server.");
+            }
             hostInput.setText("");
         }
         catch(IOException ioEx){
             display.append(ioEx.toString() + "\n");
         }
-        finally{
-            try{
-                if(socket != null){
-                    socket.close();
-                }
-            }
-            catch(IOException ioEx){
-                System.out.println("Unable to disconnect!");
-                System.exit(1);
+    }
+    public static void disconnect(){
+        try{
+            if(socket != null && !socket.isClosed()){
+                socket.close();
             }
         }
-
+        catch(IOException ioEx){
+            System.out.println("Unable to disconnect!");
+            System.exit(1);
+        }
     }
 }
