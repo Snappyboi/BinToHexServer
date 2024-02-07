@@ -1,3 +1,4 @@
+package OldFiles; //This is a barebones client, the gui one will be nicer
 //Chad Tiffner
 //02-05-2024
 import java.net.*;
